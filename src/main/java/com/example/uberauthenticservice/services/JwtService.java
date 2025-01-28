@@ -26,7 +26,7 @@ public class JwtService implements CommandLineRunner {
     @Value("${jwt.secret}")
     private String secret;
 
-    private String createToken(Map<String,Object> payload,String email) {
+    public String createToken(Map<String,Object> payload,String email) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expiry*1000L);
 
@@ -40,7 +40,7 @@ public class JwtService implements CommandLineRunner {
                 .compact();
     }
 
-    private Claims extractAllPayload(String token) {
+    public Claims extractAllPayload(String token) {
         return Jwts
                 .parser()
                 .setSigningKey(getSignKey())
@@ -49,28 +49,32 @@ public class JwtService implements CommandLineRunner {
                 .getBody();
     }
 
+    public String createToken(String email) {
+        return createToken(new HashMap<>(),email);
+    }
+
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllPayload(token);
         return claimsResolver.apply(claims);
     }
 
-    private Date extractExpiration(String token) {
+    public Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
     }
 
-    private String extractEmail(String token) {
+    public  String extractEmail(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
-    private Boolean isTokenExpired(String token) {
+    public Boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
 
-    private Key getSignKey() {
+    public Key getSignKey() {
         return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
-    private Boolean validateToken(String token, String email) {
+    public Boolean validateToken(String token, String email) {
         final String userEmailFetchedFromToken = extractEmail(token);
         return userEmailFetchedFromToken.equals(email) && !isTokenExpired(token);
     }

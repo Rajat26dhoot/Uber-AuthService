@@ -1,9 +1,15 @@
 package com.example.uberauthenticservice.configurations;
 
 
+import com.example.uberauthenticservice.filters.JwtAuthFilter;
 import com.example.uberauthenticservice.services.UserDetailServiceImpl;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -16,12 +22,17 @@ import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 @EnableWebSecurity
 public class SpringSecurity implements WebMvcConfigurer {
+
+    @Autowired
+    private JwtAuthFilter jwtAuthFilter;
 
 
     @Bean
@@ -37,9 +48,12 @@ public class SpringSecurity implements WebMvcConfigurer {
                 .cors(cors -> cors.disable())// Disable CSRF protection
                 .authorizeHttpRequests(auth ->
                         auth
-                        .requestMatchers("/api/v1/auth/signup/*").permitAll()
-                        .requestMatchers("/api/v1/auth/signin/*").permitAll()// Permit all requests to /api/v1/auth/signup/*
+                                .requestMatchers("/api/v1/auth/signup/*").permitAll()
+                                .requestMatchers("/api/v1/auth/signin/*").permitAll()
+                                .requestMatchers("/api/v1/auth/validate").permitAll()
                 )
+                .authenticationProvider(authenticationProvider())
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
@@ -78,8 +92,15 @@ public class SpringSecurity implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**").allowedOriginPatterns("*").allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS");
+        registry.addMapping("/**")
+                .allowCredentials(true)
+                .allowedOriginPatterns("*")
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS");
     }
+
+
+
+
 
 
 

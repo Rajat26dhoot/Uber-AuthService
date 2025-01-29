@@ -20,8 +20,6 @@ public class UserDetailServiceImpl implements UserDetailsService {
     private  PassengerRepository passengerRepository;
 
 
-
-
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         Optional<Passenger> passenger=passengerRepository.findPassengerByEmail(email);

@@ -2,10 +2,13 @@ package com.example.uberauthenticservice.controllers;
 
 
 import com.example.uberauthenticservice.dto.AuthRequestDto;
+import com.example.uberauthenticservice.dto.AuthResponeDto;
 import com.example.uberauthenticservice.dto.PassengerDto;
 import com.example.uberauthenticservice.dto.PassengerSignupRequestDto;
 import com.example.uberauthenticservice.services.AuthService;
 import com.example.uberauthenticservice.services.JwtService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -52,7 +55,7 @@ public class AuthController {
 
 
     @PostMapping("/signin/passenger")
-    public ResponseEntity<?> signIn(@RequestBody AuthRequestDto authRequestDto, HttpServletResponse response) {
+    public ResponseEntity<?> signIn(@RequestBody AuthRequestDto authRequestDto, HttpServletRequest request,HttpServletResponse response) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(authRequestDto.getEmail(), authRequestDto.getPassword())
         );
@@ -62,23 +65,29 @@ public class AuthController {
 
 
             ResponseCookie cookie=ResponseCookie.from("JwtToken",jwtToken)
-                                    .httpOnly(true)
-                                    .secure(false)
-                                    .path("/")
-                                    .maxAge(cookieExpiry)
-                                    .build();
+                    .httpOnly(true)
+                    .secure(false)
+                    .path("/")
+                    .maxAge(7*24*3600)
+                    .build();
             response.setHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-            return new ResponseEntity<>(jwtToken, HttpStatus.OK);
+            return new ResponseEntity<>(AuthResponeDto.builder().success(true).build(), HttpStatus.OK);
         }else{
             return new ResponseEntity<>("Authentication not successful", HttpStatus.UNAUTHORIZED);
         }
 
+
+
     }
 
-
-
-
-
+    @GetMapping("/validate")
+    public ResponseEntity<?> validate(HttpServletRequest request, HttpServletResponse response) {
+        System.out.println("Inside validate controller");
+        for(Cookie cookie: request.getCookies()) {
+            System.out.println(cookie.getName() + " " + cookie.getValue());
+        }
+        return new ResponseEntity<>("Success", HttpStatus.OK);
+    }
 
 
 

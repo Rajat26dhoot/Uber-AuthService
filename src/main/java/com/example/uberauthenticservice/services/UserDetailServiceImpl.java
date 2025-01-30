@@ -1,7 +1,7 @@
 package com.example.uberauthenticservice.services;
 
 import com.example.uberauthenticservice.helpers.AuthPassengerDetails;
-import com.example.uberauthenticservice.models.Passenger;
+import com.example.uberentityservice.models.Passenger;
 import com.example.uberauthenticservice.repositories.PassengerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;

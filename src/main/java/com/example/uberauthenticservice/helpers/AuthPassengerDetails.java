@@ -1,11 +1,10 @@
 package com.example.uberauthenticservice.helpers;
 
-import com.example.uberauthenticservice.models.Passenger;
+import com.example.uberentityservice.models.Passenger;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.List;
 
 public class AuthPassengerDetails extends Passenger implements UserDetails {
 
